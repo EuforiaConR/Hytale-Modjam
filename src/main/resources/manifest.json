@@ -1,7 +1,7 @@
 {
     "Group": "Example",
     "Name": "ExamplePlugin",
-    "Version": "0.0.2",
+    "Version": "1.0.0",
     "Description": "An example plugin for HyTale!",
     "Authors": [
         {

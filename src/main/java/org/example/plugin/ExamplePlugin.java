@@ -1,8 +1,13 @@
 package org.example.plugin;
 
+import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
+import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
+import org.example.plugin.resonance.ResonanceBlock;
+import org.example.plugin.resonance.ResonanceBlockInitializer;
+import org.example.plugin.resonance.ResonanceBlockSystem;
 
 import javax.annotation.Nonnull;
 
@@ -12,16 +17,37 @@ import javax.annotation.Nonnull;
  */
 public class ExamplePlugin extends JavaPlugin {
 
-    private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
+    private ComponentType<ChunkStore, ResonanceBlock> resonanceStorageComponentType;
+
+    public static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
+
+    private static ExamplePlugin INSTANCE;
 
     public ExamplePlugin(@Nonnull JavaPluginInit init) {
         super(init);
         LOGGER.atInfo().log("Hello from " + this.getName() + " version " + this.getManifest().getVersion().toString());
     }
 
+    public static ExamplePlugin get() {
+        return INSTANCE;
+    }
+
     @Override
     protected void setup() {
+        INSTANCE = this;
         LOGGER.atInfo().log("Setting up plugin " + this.getName());
         this.getCommandRegistry().registerCommand(new ExampleCommand(this.getName(), this.getManifest().getVersion().toString()));
+
+        this.resonanceStorageComponentType = getChunkStoreRegistry().registerComponent(ResonanceBlock.class, "ResonanceBlock", ResonanceBlock.CODEC);
+    }
+
+    @Override
+    protected void start() {
+        this.getChunkStoreRegistry().registerSystem(new ResonanceBlockSystem());
+        this.getChunkStoreRegistry().registerSystem(new ResonanceBlockInitializer());
+    }
+
+    public ComponentType<ChunkStore, ResonanceBlock> getResonanceStorageComponentType() {
+        return this.resonanceStorageComponentType;
     }
 }
