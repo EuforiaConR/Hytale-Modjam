@@ -7,9 +7,11 @@ import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import org.example.plugin.resonance.ResonanceBlock;
-import org.example.plugin.resonance.ResonanceBlockInitializer;
-import org.example.plugin.resonance.ResonanceBlockSystem;
+import org.example.plugin.resonance.event.ResonanceCreatedEvent;
+import org.example.plugin.resonance.system.ResonanceBlockInitializer;
+import org.example.plugin.resonance.system.ResonanceBlockSystem;
 import org.example.plugin.resonance.interaction.EmitResonanceInteraction;
+import org.example.plugin.resonance.system.ResonanceCreatedEventSystem;
 
 import javax.annotation.Nonnull;
 
@@ -49,6 +51,10 @@ public class ExamplePlugin extends JavaPlugin {
     protected void start() {
         this.getChunkStoreRegistry().registerSystem(new ResonanceBlockSystem());
         this.getChunkStoreRegistry().registerSystem(new ResonanceBlockInitializer());
+
+        // used for creating resonance
+        this.getChunkStoreRegistry().registerEntityEventType(ResonanceCreatedEvent.class);
+        this.getChunkStoreRegistry().registerSystem(new ResonanceCreatedEventSystem());
     }
 
     public ComponentType<ChunkStore, ResonanceBlock> getResonanceStorageComponentType() {

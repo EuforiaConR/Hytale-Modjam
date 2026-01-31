@@ -8,6 +8,7 @@ import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import org.example.plugin.ExamplePlugin;
+import org.example.plugin.resonance.event.ResonanceCreatedEvent;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -31,7 +32,9 @@ public class ResonanceBlock implements Component<ChunkStore>  {
 	}
 
 	public void setResonance(long resonance) {
-		this.resonance = resonance;
+		this.resonance = Math.max(0, resonance);
+
+		active = resonance > 0;
 	}
 
 	public long generatePerTick() {
@@ -55,11 +58,12 @@ public class ResonanceBlock implements Component<ChunkStore>  {
 	}
 
 	public void runBlockAction(int x, int y, int z, World world) {
-		world.execute(() -> {
-			resonance += generatePerTick;
-			resonance = Math.max(0, resonance - consumePerTick);
-			active = resonance > 0;
-		});
+		setResonance(resonance + generatePerTick - consumePerTick);
+	}
+
+	public void onResonanceCreated(World world, ResonanceCreatedEvent event) {
+		setResonance(resonance + event.amountCreated());
+		ExamplePlugin.LOGGER.atInfo().log("Yummy free resonance!");
 	}
 
 	@Nullable

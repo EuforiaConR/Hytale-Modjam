@@ -61,7 +61,9 @@
     "Primary": {
       "Interactions": [
         {
-          "Type": "Emit_Resonance"
+          "Type": "Emit_Resonance",
+          "Amount": 100,
+          "EmissionRadius": 10
         }
       ]
     }

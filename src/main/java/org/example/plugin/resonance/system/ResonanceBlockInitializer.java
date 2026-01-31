@@ -1,4 +1,4 @@
-package org.example.plugin.resonance;
+package org.example.plugin.resonance.system;
 
 import com.hypixel.hytale.component.AddReason;
 import com.hypixel.hytale.component.CommandBuffer;
@@ -13,6 +13,7 @@ import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
+import org.example.plugin.resonance.ResonanceBlock;
 
 public class ResonanceBlockInitializer extends RefSystem<ChunkStore> {
 

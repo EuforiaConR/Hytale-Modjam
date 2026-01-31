@@ -17,10 +17,13 @@ public class EmitResonanceInteraction extends SimpleInstantInteraction {
 
 	public static final BuilderCodec<EmitResonanceInteraction> CODEC = BuilderCodec.builder(
 			EmitResonanceInteraction.class, EmitResonanceInteraction::new, SimpleInstantInteraction.CODEC
-	).append(new KeyedCodec<>("Amount", BuilderCodec.INTEGER), EmitResonanceInteraction::setEmissionAmount, EmitResonanceInteraction::emissionAmount)
-			.add().build();
+	)
+			.append(new KeyedCodec<>("EmissionAmount", BuilderCodec.INTEGER), EmitResonanceInteraction::setEmissionAmount, EmitResonanceInteraction::emissionAmount).add()
+			.append(new KeyedCodec<>("EmissionRadius", BuilderCodec.DOUBLE), EmitResonanceInteraction::setEmissionRadius, EmitResonanceInteraction::emissionRadius).add()
+			.build();
 
 	int emissionAmount = 100;
+	double emissionRadius = 10.0;
 
 	EmitResonanceInteraction() {}
 
@@ -39,7 +42,7 @@ public class EmitResonanceInteraction extends SimpleInstantInteraction {
 			return;
 		}
 
-		ResonanceHelper.emitResonance(commandBuffer.getExternalData().getWorld(), 10.0, pos.getPosition(), emissionAmount);
+		ResonanceHelper.emitResonance(commandBuffer.getExternalData().getWorld(), emissionRadius, pos.getPosition(), emissionAmount);
 	}
 
 	public int emissionAmount() {
@@ -48,5 +51,13 @@ public class EmitResonanceInteraction extends SimpleInstantInteraction {
 
 	public void setEmissionAmount(int emissionAmount) {
 		this.emissionAmount = emissionAmount;
+	}
+
+	public double emissionRadius() {
+		return emissionRadius;
+	}
+
+	public void setEmissionRadius(double emissionRadius) {
+		this.emissionRadius = emissionRadius;
 	}
 }

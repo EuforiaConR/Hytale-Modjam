@@ -1,4 +1,4 @@
-package org.example.plugin.resonance;
+package org.example.plugin.resonance.system;
 
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
@@ -13,6 +13,7 @@ import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.ChunkSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
+import org.example.plugin.resonance.ResonanceBlock;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -22,7 +23,6 @@ public class ResonanceBlockSystem extends EntityTickingSystem<ChunkStore> {
 
 	public void tick(float dt, int index, @Nonnull ArchetypeChunk<ChunkStore> archetypeChunk, @Nonnull Store<ChunkStore> store, @Nonnull CommandBuffer<ChunkStore> commandBuffer) {
 		BlockSection blocks = archetypeChunk.getComponent(index, BlockSection.getComponentType());
-
 
 		assert blocks != null;
 		if (blocks.getTickingBlocksCountCopy() != 0) {
