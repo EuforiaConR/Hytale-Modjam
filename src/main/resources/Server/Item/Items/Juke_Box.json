@@ -56,16 +56,5 @@
       "Rock"
     ]
   },
-  "ItemSoundSetId": "ISS_Blocks_Stone",
-  "Interactions": {
-    "Primary": {
-      "Interactions": [
-        {
-          "Type": "Emit_Resonance",
-          "Amount": 100,
-          "EmissionRadius": 10
-        }
-      ]
-    }
-  }
+  "ItemSoundSetId": "ISS_Blocks_Stone"
 }

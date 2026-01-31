@@ -1,0 +1,22 @@
+{
+  "TranslationProperties": {
+    "Name": "Resonance Wand"
+  },
+  "Interactions": {
+    "Secondary": {
+      "Interactions": [
+        {
+          "Type": "EmitResonance",
+          "Effects": {
+            "ItemPlayerAnimationsId": "Staff",
+            "ItemAnimationId": "CastSummonCharged"
+          }
+        }
+      ]
+    }
+  },
+  "Model": "Resources/Resonance_Wand/resonance_wand.blockymodel",
+  "Texture": "Resources/Resonance_Wand/resonance_wand.png",
+  "UsePlayerAnimations": true,
+  "Scale": 1
+}

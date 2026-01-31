@@ -42,7 +42,7 @@ public class ExamplePlugin extends JavaPlugin {
         LOGGER.atInfo().log("Setting up plugin " + this.getName());
         this.getCommandRegistry().registerCommand(new ExampleCommand(this.getName(), this.getManifest().getVersion().toString()));
 
-        this.getCodecRegistry(Interaction.CODEC).register("Emit_Resonance",EmitResonanceInteraction.class, EmitResonanceInteraction.CODEC);
+        this.getCodecRegistry(Interaction.CODEC).register("EmitResonance",EmitResonanceInteraction.class, EmitResonanceInteraction.CODEC);
 
         this.resonanceStorageComponentType = getChunkStoreRegistry().registerComponent(ResonanceBlock.class, "ResonanceBlock", ResonanceBlock.CODEC);
     }
