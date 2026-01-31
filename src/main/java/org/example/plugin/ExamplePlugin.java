@@ -2,12 +2,14 @@ package org.example.plugin;
 
 import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.server.core.modules.interaction.interaction.config.Interaction;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import org.example.plugin.resonance.ResonanceBlock;
 import org.example.plugin.resonance.ResonanceBlockInitializer;
 import org.example.plugin.resonance.ResonanceBlockSystem;
+import org.example.plugin.resonance.interaction.EmitResonanceInteraction;
 
 import javax.annotation.Nonnull;
 
@@ -37,6 +39,8 @@ public class ExamplePlugin extends JavaPlugin {
         INSTANCE = this;
         LOGGER.atInfo().log("Setting up plugin " + this.getName());
         this.getCommandRegistry().registerCommand(new ExampleCommand(this.getName(), this.getManifest().getVersion().toString()));
+
+        this.getCodecRegistry(Interaction.CODEC).register("Emit_Resonance",EmitResonanceInteraction.class, EmitResonanceInteraction.CODEC);
 
         this.resonanceStorageComponentType = getChunkStoreRegistry().registerComponent(ResonanceBlock.class, "ResonanceBlock", ResonanceBlock.CODEC);
     }
