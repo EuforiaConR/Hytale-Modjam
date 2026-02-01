@@ -49,8 +49,6 @@ public class ResonanceBlockInitializer extends RefSystem<ChunkStore> {
 			if (!blockPos.equals(pos)) {
 				generator.neighbors.add(blockPos);
 				neighbor.neighbors.add(pos);
-
-				ExamplePlugin.LOGGER.atInfo().log("Added a new neighbor!. I (%s) now have %d neighbors", blockPos.toString(), neighbor.neighbors.size());
 			}
 		});
 	}
