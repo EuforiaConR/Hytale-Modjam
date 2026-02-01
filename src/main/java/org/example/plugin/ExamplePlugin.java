@@ -1,5 +1,6 @@
 package org.example.plugin;
 
+import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.Interaction;
@@ -7,6 +8,7 @@ import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import org.example.plugin.resonance.ResonanceBlock;
+import org.example.plugin.resonance.ResonanceDestroyerBlock;
 import org.example.plugin.resonance.event.ResonanceCreatedEvent;
 import org.example.plugin.resonance.system.ResonanceBlockInitializer;
 import org.example.plugin.resonance.system.ResonanceBlockSystem;
@@ -22,6 +24,7 @@ import javax.annotation.Nonnull;
 public class ExamplePlugin extends JavaPlugin {
 
     private ComponentType<ChunkStore, ResonanceBlock> resonanceStorageComponentType;
+    private ComponentType<ChunkStore, ResonanceDestroyerBlock> destroyerComponentType;
 
     public static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
@@ -45,6 +48,13 @@ public class ExamplePlugin extends JavaPlugin {
         this.getCodecRegistry(Interaction.CODEC).register("EmitResonance",EmitResonanceInteraction.class, EmitResonanceInteraction.CODEC);
 
         this.resonanceStorageComponentType = getChunkStoreRegistry().registerComponent(ResonanceBlock.class, "ResonanceBlock", ResonanceBlock.CODEC);
+        this.destroyerComponentType =
+                getChunkStoreRegistry().registerComponent(
+                        ResonanceDestroyerBlock.class,
+                        "ResonanceDestroyerBlock",
+                        BuilderCodec.builder(ResonanceDestroyerBlock.class, ResonanceDestroyerBlock::new).build()
+                );
+
     }
 
     @Override
@@ -60,4 +70,8 @@ public class ExamplePlugin extends JavaPlugin {
     public ComponentType<ChunkStore, ResonanceBlock> getResonanceStorageComponentType() {
         return this.resonanceStorageComponentType;
     }
+    public ComponentType<ChunkStore, ResonanceDestroyerBlock> getDestroyerComponentType() {
+        return destroyerComponentType;
+    }
+
 }

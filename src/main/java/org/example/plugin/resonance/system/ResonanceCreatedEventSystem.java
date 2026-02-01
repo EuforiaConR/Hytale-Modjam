@@ -16,6 +16,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.example.plugin.ExamplePlugin;
 import org.example.plugin.resonance.ResonanceBlock;
+import org.example.plugin.resonance.ResonanceDestroyerBlock;
 import org.example.plugin.resonance.event.ResonanceCreatedEvent;
 
 public class ResonanceCreatedEventSystem extends WorldEventSystem<ChunkStore, ResonanceCreatedEvent> {
@@ -59,21 +60,45 @@ public class ResonanceCreatedEventSystem extends WorldEventSystem<ChunkStore, Re
 						return BlockTickStrategy.IGNORED;
 					}
 
-					Ref<ChunkStore> blockRef = blockComponentChunk1.getEntityReference(ChunkUtil.indexBlockInColumn(localX, localY, localZ));
+					Ref<ChunkStore> blockRef =
+							blockComponentChunk1.getEntityReference(
+									ChunkUtil.indexBlockInColumn(localX, localY, localZ)
+							);
+
 					if (blockRef == null) {
 						return BlockTickStrategy.IGNORED;
-					} else {
-						ResonanceBlock resonanceBlock = commandBuffer1.getComponent(blockRef, ResonanceBlock.getComponentType());
-						if (resonanceBlock != null) {
-							WorldChunk worldChunk = commandBuffer.getComponent(section.getChunkColumnReference(), WorldChunk.getComponentType());
-
-							resonanceBlock.onResonanceCreated(worldChunk.getWorld(), resonanceCreatedEvent);
-							return BlockTickStrategy.CONTINUE;
-
-						} else {
-							return BlockTickStrategy.IGNORED;
-						}
 					}
+
+					// ResonanceBlock
+					ResonanceBlock resonanceBlock =
+							commandBuffer1.getComponent(blockRef, ResonanceBlock.getComponentType());
+
+					if (resonanceBlock != null) {
+						WorldChunk worldChunk =
+								commandBuffer.getComponent(section.getChunkColumnReference(), WorldChunk.getComponentType());
+
+						resonanceBlock.onResonanceCreated(worldChunk.getWorld(), resonanceCreatedEvent);
+					}
+
+					// DestroyerBlock
+					ResonanceDestroyerBlock destroyer =
+							commandBuffer1.getComponent(blockRef, ResonanceDestroyerBlock.getComponentType());
+
+					if (destroyer != null) {
+						WorldChunk worldChunk =
+								commandBuffer.getComponent(section.getChunkColumnReference(), WorldChunk.getComponentType());
+
+						destroyer.onResonance(
+								worldChunk.getWorld(),
+								worldX,
+								worldY,
+								worldZ,
+								resonanceCreatedEvent
+						);
+					}
+
+					return BlockTickStrategy.CONTINUE;
+
 				});
 			}
 		});

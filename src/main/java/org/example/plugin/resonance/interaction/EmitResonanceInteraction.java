@@ -11,7 +11,7 @@ import com.hypixel.hytale.server.core.modules.interaction.interaction.CooldownHa
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.SimpleInstantInteraction;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
-import org.example.plugin.resonance.ResonanceHelper;
+import org.example.plugin.resonance.ResonanceUtil;
 
 public class EmitResonanceInteraction extends SimpleInstantInteraction {
 
@@ -42,7 +42,7 @@ public class EmitResonanceInteraction extends SimpleInstantInteraction {
 			return;
 		}
 
-		ResonanceHelper.emitResonance(commandBuffer.getExternalData().getWorld(), emissionRadius, pos.getPosition(), emissionAmount);
+		ResonanceUtil.emitResonance(commandBuffer.getExternalData().getWorld(), emissionRadius, pos.getPosition(), emissionAmount);
 	}
 
 	public int emissionAmount() {
