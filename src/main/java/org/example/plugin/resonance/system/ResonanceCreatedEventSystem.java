@@ -14,7 +14,6 @@ import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.ChunkSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
-import org.example.plugin.ExamplePlugin;
 import org.example.plugin.resonance.ResonanceBlock;
 import org.example.plugin.resonance.event.ResonanceCreatedEvent;
 

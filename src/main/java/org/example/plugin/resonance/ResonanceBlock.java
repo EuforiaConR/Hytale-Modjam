@@ -3,8 +3,10 @@ package org.example.plugin.resonance;
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
+import com.hypixel.hytale.codec.codecs.array.ArrayCodec;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.ComponentType;
+import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import org.example.plugin.ExamplePlugin;
@@ -12,9 +14,13 @@ import org.example.plugin.resonance.event.ResonanceCreatedEvent;
 
 import javax.annotation.Nullable;
 import java.awt.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ResonanceBlock implements Component<ChunkStore>  {
 
+	public Set<Vector3i> neighbors = new HashSet<>();
 	public boolean active = false;
 
 	private long resonance = 0;
@@ -75,11 +81,21 @@ public class ResonanceBlock implements Component<ChunkStore>  {
 		return block;
 	}
 
+	Vector3i[] neighborsAsArray() {
+		return neighbors.toArray(Vector3i[]::new);
+	}
+
+	void setNeighbors(Vector3i[] neighbors) {
+		this.neighbors.clear();
+		this.neighbors.addAll(Arrays.asList(neighbors));
+	}
+
 	static {
 		CODEC = BuilderCodec.builder(ResonanceBlock.class, ResonanceBlock::new)
 				.append(new KeyedCodec<>("Resonance", Codec.LONG), ResonanceBlock::setResonance, ResonanceBlock::getResonance).add()
 				.append(new KeyedCodec<>("GeneratePerTick", Codec.LONG), ResonanceBlock::setGeneratePerTick, ResonanceBlock::generatePerTick).add()
 				.append(new KeyedCodec<>("ConsumePerTick", Codec.LONG), ResonanceBlock::setConsumePerTick, ResonanceBlock::consumePerTick).add()
+				.append(new KeyedCodec<>("Neighbors", new ArrayCodec<>(Vector3i.CODEC, Vector3i[]::new)), ResonanceBlock::setNeighbors, ResonanceBlock::neighborsAsArray).add()
 				.build();
 	}
 }
