@@ -28,8 +28,7 @@ public class ResonanceDestroyerBlock implements Component<ChunkStore> {
 
         world.execute(()->{
             EntityStore store = world.getEntityStore();
-            // TODO: extender la logica para permitir romper el bloque hacia la direccion
-            //  a la que esta mirando el bloque
+            // TODO: extend the logic to allow breaking the block in the direction the block is facing
             BlockType blockType = world.getBlockType(target);
             String itemId = blockType.getId();
             ItemStack stack = new ItemStack(itemId, 1);
