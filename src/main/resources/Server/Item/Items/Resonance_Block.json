@@ -1,10 +1,10 @@
 {
   "TranslationProperties": {
-    "Name": "Juke Box"
+    "Name": "server.items.Resonance_Block.name"
   },
   "ItemLevel": 10,
   "MaxStack": 100,
-  "Icon": "Icons/ItemsGenerated/Plant_Crop_Mushroom_Block_Green_Trunk.png",
+  "Icon": "Icons/ItemsGenerated/Resonance_Block.png",
   "Categories": [
     "Blocks.Rocks"
   ],
@@ -12,7 +12,7 @@
   "Set": "Rock_Stone",
   "BlockType": {
     "Material": "Solid",
-    "DrawType": "Cube",
+    "DrawType": "Model",
     "Group": "Stone",
     "Flags": {},
     "Gathering": {
@@ -41,7 +41,14 @@
           "Resonance": 340
         }
       }
-    }
+    },
+    "CustomModelTexture": [
+      {
+        "Texture": "Blocks/Resonance/Resonance_Block.png"
+      }
+    ],
+    "CustomModel": "Blocks/Resonance/Resonance_Block.blockymodel",
+    "VariantRotation": "NESW"
   },
   "ResourceTypes": [
     {
@@ -56,5 +63,17 @@
       "Rock"
     ]
   },
-  "ItemSoundSetId": "ISS_Blocks_Stone"
+  "ItemSoundSetId": "ISS_Blocks_Stone",
+  "IconProperties": {
+    "Scale": 0.58823,
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ],
+    "Translation": [
+      0,
+      -13.5
+    ]
+  }
 }
