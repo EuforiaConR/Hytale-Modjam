@@ -8,8 +8,8 @@
         {
           "Type": "EmitResonance",
           "Effects": {
-            "ItemPlayerAnimationsId": "Staff",
-            "ItemAnimationId": "CastSummonCharged",
+            "ItemPlayerAnimationsId": "ResonanceWand",
+            "ItemAnimationId": "CastResonanceCharged",
             "Particles": [
               {
                 "SystemId": "Sound_Wave_System",

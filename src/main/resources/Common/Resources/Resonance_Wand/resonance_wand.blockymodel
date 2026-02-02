@@ -3,8 +3,8 @@
     {
       "id": "1",
       "name": "R-Attachment",
-      "position": {"x": 0.01558, "y": 10.68619, "z": -0.01056},
-      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+      "position": {"x": 0, "y": 0, "z": 0},
+      "orientation": {"x": -0.19509, "y": 0, "z": 0, "w": 0.98079},
       "shape": {
         "type": "none",
         "offset": {"x": 0, "y": 0, "z": 0},
@@ -60,11 +60,11 @@
                 {
                   "id": "4",
                   "name": "Handle",
-                  "position": {"x": 0, "y": -10, "z": 0},
+                  "position": {"x": 0, "y": 4, "z": 0},
                   "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
                   "shape": {
                     "type": "box",
-                    "offset": {"x": -0.01558, "y": 10.81381, "z": 0.01056},
+                    "offset": {"x": -0.01558, "y": -3.18619, "z": 0.01056},
                     "stretch": {"x": 1, "y": 1, "z": 1},
                     "settings": {
                       "isPiece": false,
