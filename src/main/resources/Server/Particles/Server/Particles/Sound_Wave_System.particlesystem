@@ -1,0 +1,26 @@
+{
+  "Spawners": [
+    {
+      "SpawnerId": "Sound_Wave_Spawner",
+      "RotationOffset": {
+        "Yaw": 0,
+        "Pitch": 90
+      }
+    },
+    {
+      "SpawnerId": "Sound_Wave_Spawner",
+      "RotationOffset": {
+        "Yaw": 0,
+        "Pitch": 0,
+        "Roll": 90
+      }
+    },
+    {
+      "SpawnerId": "Sound_Wave_Spawner",
+      "RotationOffset": {
+        "Yaw": 0,
+        "Pitch": 0
+      }
+    }
+  ]
+}

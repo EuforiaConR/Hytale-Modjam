@@ -48,11 +48,11 @@ public class ResonanceDestroyerBlock implements Component<ChunkStore> {
              EntityStore store = world.getEntityStore();
              BlockType blockType = world.getBlockType(target);
 
-            if (blockType == null) {
+            if (blockType == null || blockType.equals(BlockType.EMPTY)) {
                 return;
             }
 
-             ItemStack stack = new ItemStack(blockType.getId(), 1);
+            ItemStack stack = new ItemStack(blockType.getId(), 1);
 
             var holders = ItemComponent.generateItemDrops(
                     store.getStore(),

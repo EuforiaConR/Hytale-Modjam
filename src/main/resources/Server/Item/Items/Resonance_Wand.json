@@ -9,7 +9,18 @@
           "Type": "EmitResonance",
           "Effects": {
             "ItemPlayerAnimationsId": "Staff",
-            "ItemAnimationId": "CastSummonCharged"
+            "ItemAnimationId": "CastSummonCharged",
+            "Particles": [
+              {
+                "SystemId": "Sound_Wave_System",
+                "TargetEntityPart": "Self",
+                "DetachedFromModel": false,
+                "PositionOffset": {
+                  "Y": 0.75
+                }
+              }
+            ],
+            "FirstPersonParticles": []
           }
         }
       ]

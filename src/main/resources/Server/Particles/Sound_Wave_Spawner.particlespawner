@@ -1,0 +1,115 @@
+{
+  "EmitOffset": {
+    "X": {
+      "Min": 0,
+      "Max": 0
+    },
+    "Y": {
+      "Min": 0,
+      "Max": 0
+    },
+    "Z": {
+      "Min": 0,
+      "Max": 0
+    }
+  },
+  "ParticleRotationInfluence": "None",
+  "LinearFiltering": true,
+  "ParticleRotateWithSpawner": false,
+  "MaxConcurrentParticles": 5,
+  "InitialVelocity": {},
+  "Particle": {
+    "Texture": "Particles/soundwave1.png",
+    "ScaleRatioConstraint": "OneToOne",
+    "UVOption": "RandomFlipU",
+    "InitialAnimationFrame": {
+      "Rotation": {
+        "X": {
+          "Min": 0,
+          "Max": 0
+        },
+        "Y": {
+          "Min": 0,
+          "Max": 0
+        },
+        "Z": {
+          "Min": 0,
+          "Max": 90
+        }
+      },
+      "Opacity": 1.0,
+      "FrameIndex": {
+        "Min": 0,
+        "Max": 0
+      },
+      "Scale": {
+        "X": {
+          "Min": 1,
+          "Max": 1
+        }
+      },
+      "Color": "#d7f8ff"
+    },
+    "Animation": {
+      "0": {
+        "Scale": {
+          "X": {
+            "Min": 1,
+            "Max": 1
+          },
+          "Y": {
+            "Min": 1,
+            "Max": 1
+          }
+        },
+        "Rotation": {
+          "X": {
+            "Max": 90,
+            "Min": 90
+          }
+        },
+        "Opacity": 1
+      },
+      "100": {
+        "Scale": {
+          "X": {
+            "Min": 6,
+            "Max": 6
+          },
+          "Y": {
+            "Min": 6,
+            "Max": 6
+          }
+        },
+        "Rotation": {
+          "X": {
+            "Min": 90,
+            "Max": 90
+          }
+        },
+        "Opacity": 0
+      }
+    }
+  },
+  "TrailSpawnerPositionMultiplier": 0,
+  "TrailSpawnerRotationMultiplier": 0,
+  "SpawnRate": {
+    "Min": 0.15,
+    "Max": 0.15
+  },
+  "ParticleLifeSpan": {
+    "Min": 1.5,
+    "Max": 1.5
+  },
+  "SpawnBurst": true,
+  "TotalParticles": {
+    "Min": 3,
+    "Max": 3
+  },
+  "WaveDelay": {
+    "Min": 0,
+    "Max": 0
+  },
+  "UseEmitDirection": true,
+  "RenderMode": "Erosion"
+}
