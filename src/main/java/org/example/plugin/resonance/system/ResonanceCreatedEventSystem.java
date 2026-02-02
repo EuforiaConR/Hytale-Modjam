@@ -87,7 +87,11 @@ public class ResonanceCreatedEventSystem extends WorldEventSystem<ChunkStore, Re
 							ResonanceBlock resonanceBlock =
 									chunkBuffer.getComponent(blockRef, ResonanceBlock.getComponentType());
 							if (resonanceBlock != null) {
-								resonanceBlock.onResonanceCreated(worldChunk.getWorld(), event);
+								if (worldX == event.blockOrigin().x && worldY == event.blockOrigin().y && worldZ == event.blockOrigin().z) {
+								}
+								else {
+									resonanceBlock.onResonanceCreated(worldX, worldY, worldZ, worldChunk.getWorld(), event);
+								}
 							}
 
 							// DestroyerBlock: reacciona a la resonancia (rompe bloques etc)

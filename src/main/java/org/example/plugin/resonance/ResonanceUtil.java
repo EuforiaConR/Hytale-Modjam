@@ -3,15 +3,13 @@ package org.example.plugin.resonance;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Holder;
 import com.hypixel.hytale.component.Ref;
-import com.hypixel.hytale.function.predicate.ObjectPositionBlockFunction;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.asset.type.blocktick.BlockTickStrategy;
-import com.hypixel.hytale.server.core.command.commands.world.chunk.ChunkInfoCommand;
+import com.hypixel.hytale.server.core.universe.world.ParticleUtil;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
-import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.ChunkSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
@@ -19,14 +17,18 @@ import org.example.plugin.resonance.event.ResonanceCreatedEvent;
 
 import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class ResonanceUtil {
 
 	public static final double BLOCK_DETECTION_RANGE = 8.0;
 
+	public static void emitResonance(World world, double blockRadius, Vector3i pos, int amount) {
+		ResonanceCreatedEvent event = new ResonanceCreatedEvent(amount, pos.toVector3d(), pos, blockRadius);
+		world.getChunkStore().getStore().invoke(event);
+	}
+
 	public static void emitResonance(World world, double blockRadius, Vector3d pos, int amount) {
-		ResonanceCreatedEvent event = new ResonanceCreatedEvent(amount, pos, blockRadius);
+		ResonanceCreatedEvent event = new ResonanceCreatedEvent(amount, pos, pos.toVector3i(), blockRadius);
 		world.getChunkStore().getStore().invoke(event);
 	}
 
@@ -98,5 +100,11 @@ public class ResonanceUtil {
 	public interface ExtendedTickingBlockFunction {
 
 		void accept(CommandBuffer<ChunkStore> buffer, Ref<ChunkStore> blockRef, ChunkSection section, Vector3i globalPos, int blockId);
+	}
+
+	public static void spawnSoundWaveParticlesBlockCenter(Vector3i block, World world) {
+		Holder<ChunkStore> holder = world.getBlockComponentHolder(block.x, block.y, block.z);
+
+		ParticleUtil.spawnParticleEffect("Sound_Wave_System", new Vector3d(block.x + 0.5, block.y + 1.0, block.z + 0.5), world.getEntityStore().getStore());
 	}
 }

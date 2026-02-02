@@ -25,8 +25,18 @@ public class ResonanceBlock implements Component<ChunkStore>  {
 
 	private long resonance = 0;
 
-	private long consumePerTick = 0;
+	private long consumePerTick = 0; // Set to -1 to consume all instantly
 	private long generatePerTick = 0;
+
+	// When to emit resonance into the world.
+	private EmissionType emissionType = EmissionType.Never;
+	private long generateForTicks = 0;
+
+	// Amount of times to start generating from the initial signal.
+	private long generationCycles = 1;
+
+	private long generateTicksLeft = 0;
+	private long generationCyclesLeft = 0;
 
 	public static final BuilderCodec<ResonanceBlock> CODEC;
 
@@ -59,17 +69,64 @@ public class ResonanceBlock implements Component<ChunkStore>  {
 		this.consumePerTick = consumePerTick;
 	}
 
+	public EmissionType emissionType() {
+		return emissionType;
+	}
+
+	public void setEmissionType(EmissionType emissionType) {
+		this.emissionType = emissionType;
+	}
+
+	public long generateForTicks() {
+		return generateForTicks;
+	}
+
+	public void setGenerateForTicks(long generateForTicks) {
+		this.generateForTicks = generateForTicks;
+	}
+
+	public long generationCycles() {
+		return generationCycles;
+	}
+
+	public void setGenerationCycles(long generationCycles) {
+		this.generationCycles = generationCycles;
+	}
+
 	public static ComponentType<ChunkStore, ResonanceBlock> getComponentType() {
 		return ExamplePlugin.get().getResonanceStorageComponentType();
 	}
 
 	public void runBlockAction(int x, int y, int z, World world) {
-		setResonance(resonance + generatePerTick - consumePerTick);
+		boolean was0 = generateTicksLeft == 0;
+		// 1. Decrease amount of time to generate resonance.
+		generateTicksLeft = Math.max(0, generateTicksLeft - 1);
+
+		// Generate (potentially for the last time)
+		long generate = was0 ? 0 : generatePerTick;
+		setResonance(resonance + generate - consumePerTick);
+
+		if (!was0 && generateTicksLeft == 0 && generationCyclesLeft > 0) {
+			if (emissionType == EmissionType.OnGenerationDone) {
+				ResonanceUtil.emitResonance(world, ResonanceUtil.BLOCK_DETECTION_RANGE, new Vector3i(x, y, z), (int) resonance);
+				ResonanceUtil.spawnSoundWaveParticlesBlockCenter(new Vector3i(x, y, z), world);
+				resonance = 0;
+				generationCyclesLeft--;
+				generateTicksLeft = generateForTicks;
+			}
+		}
 	}
 
-	public void onResonanceCreated(World world, ResonanceCreatedEvent event) {
+	public void onResonanceCreated(int ownX, int ownY, int ownZ, World world, ResonanceCreatedEvent event) {
+		// Don't allow generators to gain more
+		if (generatePerTick > 0 && event.amountCreated() > 0) {
+			return;
+		}
+
 		setResonance(resonance + event.amountCreated());
-		ExamplePlugin.LOGGER.atInfo().log("Yummy free resonance!");
+
+		generationCyclesLeft = generationCycles;
+		generateTicksLeft = generateForTicks;
 	}
 
 	@Nullable
@@ -78,6 +135,10 @@ public class ResonanceBlock implements Component<ChunkStore>  {
 		block.resonance = resonance;
 		block.consumePerTick = consumePerTick;
 		block.generatePerTick = generatePerTick;
+		block.emissionType = emissionType;
+		block.generateForTicks = generateForTicks;
+		block.generateTicksLeft = generateTicksLeft;
+		block.generationCycles = generationCycles;
 		return block;
 	}
 
@@ -96,6 +157,9 @@ public class ResonanceBlock implements Component<ChunkStore>  {
 				.append(new KeyedCodec<>("GeneratePerTick", Codec.LONG), ResonanceBlock::setGeneratePerTick, ResonanceBlock::generatePerTick).add()
 				.append(new KeyedCodec<>("ConsumePerTick", Codec.LONG), ResonanceBlock::setConsumePerTick, ResonanceBlock::consumePerTick).add()
 				.append(new KeyedCodec<>("Neighbors", new ArrayCodec<>(Vector3i.CODEC, Vector3i[]::new)), ResonanceBlock::setNeighbors, ResonanceBlock::neighborsAsArray).add()
+				.append(new KeyedCodec<>("EmissionType", EmissionType.CODEC), ResonanceBlock::setEmissionType, ResonanceBlock::emissionType).add()
+				.append(new KeyedCodec<>("GenerateForTicks", Codec.LONG), ResonanceBlock::setGenerateForTicks, ResonanceBlock::generateForTicks).add()
+				.append(new KeyedCodec<>("GenerationCycles", Codec.LONG), ResonanceBlock::setGenerationCycles, ResonanceBlock::generationCycles).add()
 				.build();
 	}
 }
