@@ -1,0 +1,54 @@
+{
+  "TranslationProperties": { "Name": "Musical Block" },
+  "ItemLevel": 10,
+  "MaxStack": 100,
+  "Icon": "Icons/ItemsGenerated/Resonance_Wand.png",
+  "Categories": ["Blocks.Rocks"],
+  "PlayerAnimationsId": "Block",
+  "Set": "Soil_Clay",
+
+  "BlockType": {
+    "Material": "Solid",
+    "DrawType": "Model",
+    "CustomModel": "Blocks/Musical_Block.blockymodel",
+    "CustomModelTexture": [
+      { "Texture": "Blocks/Musical_Block_Texture.png", "Weight": 1 }
+    ],
+    "Group": "Dirt",
+    "HitboxType": "Full",
+
+    "VariantRotation": "UpDownNESW",
+    "FlipType": "Symmetric",
+    "RotationYawPlacementOffset": "None",
+
+    "Flags": {},
+    "Gathering": { "Breaking": { "GatherType": "Soils" } },
+    "ParticleColor": "#684475",
+    "BlockParticleSetId": "Stone",
+    "BlockSoundSetId": "Dirt",
+
+    "BlockEntity": {
+      "Components": {
+        "ResonanceMusicBlock": {
+          "Volume": 1.0,
+          "BasePitch": 1.0,
+          "PitchPerAmount": 0.01,
+          "HearRadius": 16.0,
+          "CooldownMs": 200
+        },
+        "ResonanceBlock": { "Resonance": 0 }
+      }
+    }
+  },
+
+  "ResourceTypes": [{ "Id": "Clays" }],
+  "Tags": { "Type": ["Soil"], "Family": ["Clay"] },
+
+  "IconProperties": {
+    "Scale": 0.58823,
+    "Rotation": [22.5, 45, 22.5],
+    "Translation": [0, -13.5]
+  },
+
+  "ItemSoundSetId": "ISS_Blocks_Soft"
+}
