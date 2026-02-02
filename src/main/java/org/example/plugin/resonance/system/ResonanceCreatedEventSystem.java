@@ -27,18 +27,30 @@ public class ResonanceCreatedEventSystem extends WorldEventSystem<ChunkStore, Re
 	}
 
 	@Override
-	public void handle(@NonNullDecl Store<ChunkStore> store, @NonNullDecl CommandBuffer<ChunkStore> commandBuffer, @NonNullDecl ResonanceCreatedEvent resonanceCreatedEvent) {
-		double distSq = resonanceCreatedEvent.blockRange() * resonanceCreatedEvent.blockRange();
+	public void handle(@NonNullDecl Store<ChunkStore> store,
+					   @NonNullDecl CommandBuffer<ChunkStore> commandBuffer,
+					   @NonNullDecl ResonanceCreatedEvent event) {
+
+		ExamplePlugin.LOGGER.atInfo().log(
+				"PISTON_EVT: amount=" + event.amountCreated()
+						+ " radius=" + event.blockRange()
+						+ " origin=" + event.origin()
+		);
+
+		double distSq = event.blockRange() * event.blockRange();
+
 
 		store.forEachChunk(QUERY, (archetypeChunk, buffer) -> {
 
 			for (int index = 0; index < archetypeChunk.size(); index++) {
 				BlockSection blocks = archetypeChunk.getComponent(index, BlockSection.getComponentType());
+				if (blocks == null) continue;
 
-				assert blocks != null;
-				if (blocks.getTickingBlocksCountCopy() == 0) {
-					continue;
-				}
+				int ticking = blocks.getTickingBlocksCountCopy();
+				if (ticking == 0) continue;
+
+				ExamplePlugin.LOGGER.atInfo().log("PISTON_SCAN: ticking=" + ticking);
+
 
 				ChunkSection section = archetypeChunk.getComponent(index, ChunkSection.getComponentType());
 
@@ -48,17 +60,23 @@ public class ResonanceCreatedEventSystem extends WorldEventSystem<ChunkStore, Re
 
 				assert blockComponentChunk != null;
 
-				blocks.forEachTicking(blockComponentChunk, commandBuffer, section.getY(), (blockComponentChunk1, commandBuffer1, localX, localY, localZ, blockId) ->
+				blocks.forEachTicking(blockComponentChunk, commandBuffer, section.getY(), (
+
+						blockComponentChunk1, commandBuffer1, localX, localY, localZ, blockId) ->
+
+
 				{
 					int worldX = ChunkUtil.worldCoordFromLocalCoord(section.getX(), localX);
 					int worldY = ChunkUtil.worldCoordFromLocalCoord(section.getY(), localY);
 					int worldZ = ChunkUtil.worldCoordFromLocalCoord(section.getZ(), localZ);
 
 					// Don't interact with blocks outside our radius
-					if (new Vector3d(worldX, worldY, worldZ).distanceSquaredTo(resonanceCreatedEvent.origin()) >= distSq) {
+					if (new Vector3d(worldX, worldY, worldZ)
+							.distanceSquaredTo(event.origin()) >= distSq) {
 						return BlockTickStrategy.IGNORED;
 					}
 
+<<<<<<< Updated upstream
 					Ref<ChunkStore> blockRef =
 							blockComponentChunk1.getEntityReference(
 									ChunkUtil.indexBlockInColumn(localX, localY, localZ)
@@ -66,6 +84,26 @@ public class ResonanceCreatedEventSystem extends WorldEventSystem<ChunkStore, Re
 
 					if (blockRef == null) {
 						return BlockTickStrategy.IGNORED;
+=======
+					ExamplePlugin.LOGGER.atInfo().log(
+							"PISTON_TICK: at " + worldX + "," + worldY + "," + worldZ
+					);
+
+					Ref<ChunkStore> blockRef = blockComponentChunk1.getEntityReference(ChunkUtil.indexBlockInColumn(localX, localY, localZ));
+					if (blockRef == null) {
+						return BlockTickStrategy.IGNORED;
+					} else {
+						ResonanceBlock resonanceBlock = commandBuffer1.getComponent(blockRef, ResonanceBlock.getComponentType());
+						if (resonanceBlock != null) {
+							WorldChunk worldChunk = commandBuffer.getComponent(section.getChunkColumnReference(), WorldChunk.getComponentType());
+
+							resonanceBlock.onResonanceCreated(worldChunk.getWorld(), event);
+							return BlockTickStrategy.CONTINUE;
+
+						} else {
+							return BlockTickStrategy.IGNORED;
+						}
+>>>>>>> Stashed changes
 					}
 
 					// ResonanceBlock

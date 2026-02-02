@@ -1,0 +1,50 @@
+{
+    "TranslationProperties": {
+        "Name": "Piston Block Active"
+    },
+    "Categories": ["Blocks.Rocks"],
+
+    "BlockType": {
+        "BlockEntity": {
+            "Components": {
+                "ResonanceBlock": {
+                    "Resonance": 0,
+                    "GeneratePerTick": 0,
+                    "ConsumePerTick": 0
+                }
+            }
+        },
+
+        "Material": "Solid",
+        "DrawType": "Model",
+        "CustomModel": "Resources/Piston/Piston_Block_Active.blockymodel",
+        "CustomModelTexture": [
+            {
+                "Texture": "Resources/Piston/Piston_Block_Active.png",
+                "Weight": 1
+            }
+        ],
+        "Group": "",
+        "HitboxType": "Full",
+        "VariantRotation": "NESW",
+        "Flags": {},
+        "BlockParticleSetId": "Stone",
+        "BlockSoundSetId": "Stone"
+    },
+    "PlayerAnimationsId": "Block",
+    "IconProperties": {
+        "Scale": 0.5,
+        "Translation": [
+            0,
+            -5
+        ],
+        "Rotation": [
+            22.5,
+            45,
+            22.5
+        ]
+    },
+    "Icon": "Icons/ItemsGenerated/Piston_Head.png",
+    "MaxStack": 64,
+    "ItemSoundSetId": "ISS_Blocks_Stone"
+}

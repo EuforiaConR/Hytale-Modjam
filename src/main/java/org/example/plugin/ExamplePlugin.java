@@ -73,10 +73,15 @@ public class ExamplePlugin extends JavaPlugin {
         this.getChunkStoreRegistry().registerSystem(new ResonanceBlockSystem());
         this.getChunkStoreRegistry().registerSystem(new ResonanceBlockInitializer());
 
-        // used for creating resonance
         this.getChunkStoreRegistry().registerEntityEventType(ResonanceCreatedEvent.class);
         this.getChunkStoreRegistry().registerSystem(new ResonanceCreatedEventSystem());
+
+        // ✅ Pistón por resonancia
+        this.getChunkStoreRegistry().registerSystem(new org.example.plugin.piston.system.ResonancePistonEventSystem());
     }
+
+
+
 
     public ComponentType<ChunkStore, ResonanceBlock> getResonanceStorageComponentType() {
         return this.resonanceStorageComponentType;
