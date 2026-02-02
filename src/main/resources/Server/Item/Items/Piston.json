@@ -1,9 +1,9 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Destroyer_Block.name"
+    "Name": "server.items.Piston.name"
   },
   "ItemLevel": 10,
-  "Icon": "Icons/ItemsGenerated/Destroyer_Block.png",
+  "Icon": "Icons/ItemsGenerated/Piston.png",
   "Categories": [
     "Blocks.Rocks"
   ],
@@ -12,7 +12,7 @@
   "BlockType": {
     "Material": "Solid",
     "DrawType": "Model",
-    "CustomModel": "Blocks/Resonance/Drum_Breaker.blockymodel",
+    "CustomModel": "Blocks/Resonance/Piston.blockymodel",
     "Group": "Dirt",
     "Flags": {},
     "Gathering": {
@@ -25,14 +25,13 @@
     "CustomModelTexture": [
       {
         "Weight": 1,
-        "Texture": "Blocks/Resonance/Drum_Breaker.png"
+        "Texture": "Blocks/Resonance/Piston.png"
       }
     ],
     "HitboxType": "Full",
     "BlockSoundSetId": "Dirt",
     "BlockEntity": {
       "Components": {
-        "ResonanceDestroyerBlock": {},
         "ResonanceBlock": {
           "Resonance": 0
         }
