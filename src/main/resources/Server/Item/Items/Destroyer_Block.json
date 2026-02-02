@@ -3,7 +3,7 @@
     "Name": "server.items.Destroyer_Block.name"
   },
   "ItemLevel": 10,
-  "Icon": "Icons/ItemsGenerated/Soil_Clay_Purple.png",
+  "Icon": "Icons/ItemsGenerated/Destroyer_Block.png",
   "Categories": [
     "Blocks.Rocks"
   ],
@@ -11,7 +11,8 @@
   "Set": "Soil_Clay",
   "BlockType": {
     "Material": "Solid",
-    "DrawType": "Cube",
+    "DrawType": "Model",
+    "CustomModel": "Blocks/Debug_Block.blockymodel",
     "Group": "Dirt",
     "Flags": {},
     "Gathering": {
@@ -21,12 +22,14 @@
     },
     "ParticleColor": "#684475",
     "BlockParticleSetId": "Stone",
-    "Textures": [
+    "CustomModelTexture": [
       {
-        "All": "BlockTextures/Clay_Purple.png",
-        "Weight": 1
+        "All": "Blocks/Debug_Block.png",
+        "Weight": 1,
+        "Texture": "Blocks/Debug_Block.png"
       }
     ],
+    "HitboxType": "Full",
     "BlockSoundSetId": "Dirt",
     "BlockEntity": {
       "Components": {
@@ -35,7 +38,10 @@
           "Resonance": 0
         }
       }
-    }
+    },
+    "VariantRotation": "UpDownNESW",
+    "FlipType": "Symmetric",
+    "RotationYawPlacementOffset": "None"
   },
   "ResourceTypes": [
     {
@@ -54,11 +60,11 @@
     "Scale": 0.58823,
     "Rotation": [
       22.5,
-      45.0,
+      45,
       22.5
     ],
     "Translation": [
-      0.0,
+      0,
       -13.5
     ]
   },
