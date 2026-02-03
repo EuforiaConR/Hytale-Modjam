@@ -1,5 +1,5 @@
 {
-  "TranslationProperties": { "Name": "Musical Block" },
+  "TranslationProperties": { "Name": "server.items.Musical_Block.name" },
   "ItemLevel": 10,
   "MaxStack": 100,
   "Icon": "Icons/ItemsGenerated/Resonance_Wand.png",

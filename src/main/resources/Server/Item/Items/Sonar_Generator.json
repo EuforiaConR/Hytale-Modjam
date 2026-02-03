@@ -1,7 +1,7 @@
 {
   "TranslationProperties": {
-    "Name": "Sonar Generator",
-    "Description": ""
+    "Name": "server.items.Sonar_Generator.name",
+    "Description": "server.items.Sonar_Generator.description"
   },
   "Icon": "Icons/ItemsGenerated/Dong_Generator.png",
   "Categories": [
