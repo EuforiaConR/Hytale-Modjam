@@ -1,11 +1,20 @@
 {
-    "Group": "Example",
-    "Name": "ExamplePlugin",
+    "Group": "Resonance",
+    "Name": "EchoResonance",
     "Version": "1.0.0",
-    "Description": "An example plugin for HyTale!",
+    "Description": "Resonance System",
     "Authors": [
         {
-            "Name": "It's you!"
+            "Name": "Daniel"
+        },
+        {
+            "Name": "Jabco"
+        },
+        {
+            "Name": "Steven"
+        },
+        {
+            "Name": "Euforia"
         }
     ],
     "Website": "example.org",
