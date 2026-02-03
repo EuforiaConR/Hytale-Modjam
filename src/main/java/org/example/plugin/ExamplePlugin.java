@@ -14,7 +14,6 @@ import org.example.plugin.resonance.system.ResonanceBlockInitializer;
 import org.example.plugin.resonance.system.ResonanceBlockSystem;
 import org.example.plugin.resonance.interaction.EmitResonanceInteraction;
 import org.example.plugin.resonance.system.ResonanceCreatedEventSystem;
-import org.example.plugin.resonance.ResonanceMusicBlock;
 
 
 import javax.annotation.Nonnull;
@@ -26,7 +25,6 @@ import javax.annotation.Nonnull;
 public class ExamplePlugin extends JavaPlugin {
 
     private ComponentType<ChunkStore, ResonanceBlock> resonanceStorageComponentType;
-    private ComponentType<ChunkStore, ResonanceMusicBlock> musicBlockComponentType;
     private ComponentType<ChunkStore, ResonanceDestroyerBlock> destroyerComponentType;
 
     public static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
@@ -52,12 +50,6 @@ public class ExamplePlugin extends JavaPlugin {
 
         this.resonanceStorageComponentType = getChunkStoreRegistry().registerComponent(ResonanceBlock.class, "ResonanceBlock", ResonanceBlock.CODEC);
 
-        this.musicBlockComponentType =
-            getChunkStoreRegistry().registerComponent(
-                    ResonanceMusicBlock.class,
-                    "ResonanceMusicBlock",
-                    BuilderCodec.builder(ResonanceMusicBlock.class, ResonanceMusicBlock::new).build()
-            );
 
         this.destroyerComponentType =
                 getChunkStoreRegistry().registerComponent(
@@ -88,9 +80,6 @@ public class ExamplePlugin extends JavaPlugin {
     }
     public ComponentType<ChunkStore, ResonanceDestroyerBlock> getDestroyerComponentType() {
         return destroyerComponentType;
-    }
-    public ComponentType<ChunkStore, ResonanceMusicBlock> getMusicBlockComponentType() {
-        return this.musicBlockComponentType;
     }
 
 
