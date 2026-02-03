@@ -1,0 +1,13 @@
+{
+  "Layers": [
+    {
+      "Files": [
+        "Sounds/Resonance/Simple_Resonance.ogg"
+      ]
+    }
+  ],
+  "PreventSoundInterruption": true,
+  "Volume": -5.0,
+  "Parent": "SFX_Attn_Quiet",
+  "Pitch": 0.2
+}
