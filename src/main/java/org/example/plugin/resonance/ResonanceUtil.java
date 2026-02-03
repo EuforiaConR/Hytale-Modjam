@@ -6,13 +6,17 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3i;
+import com.hypixel.hytale.protocol.SoundCategory;
 import com.hypixel.hytale.server.core.asset.type.blocktick.BlockTickStrategy;
+import com.hypixel.hytale.server.core.asset.type.soundevent.config.SoundEvent;
 import com.hypixel.hytale.server.core.universe.world.ParticleUtil;
+import com.hypixel.hytale.server.core.universe.world.SoundUtil;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.ChunkSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.example.plugin.resonance.event.ResonanceCreatedEvent;
 
 import javax.annotation.Nullable;
@@ -24,11 +28,19 @@ public class ResonanceUtil {
 
 	public static void emitResonance(World world, double blockRadius, Vector3i pos, int amount) {
 		ResonanceCreatedEvent event = new ResonanceCreatedEvent(amount, pos.toVector3d(), pos, blockRadius);
+
+		int soundIndex = SoundEvent.getAssetMap().getIndex("SFX_Simple_Resonance");
+		EntityStore store = world.getEntityStore();
+		SoundUtil.playSoundEvent3d(soundIndex, SoundCategory.SFX,pos.x, pos.y, pos.z,store.getStore());
 		world.getChunkStore().getStore().invoke(event);
 	}
 
 	public static void emitResonance(World world, double blockRadius, Vector3d pos, int amount) {
 		ResonanceCreatedEvent event = new ResonanceCreatedEvent(amount, pos, pos.toVector3i(), blockRadius);
+
+		int soundIndex = SoundEvent.getAssetMap().getIndex("SFX_Simple_Resonance");
+		EntityStore store = world.getEntityStore();
+		SoundUtil.playSoundEvent3d(soundIndex, SoundCategory.SFX,pos.x, pos.y, pos.z,store.getStore());
 		world.getChunkStore().getStore().invoke(event);
 	}
 
