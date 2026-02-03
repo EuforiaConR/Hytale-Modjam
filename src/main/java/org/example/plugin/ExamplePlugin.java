@@ -68,7 +68,6 @@ public class ExamplePlugin extends JavaPlugin {
         this.getChunkStoreRegistry().registerEntityEventType(ResonanceCreatedEvent.class);
         this.getChunkStoreRegistry().registerSystem(new ResonanceCreatedEventSystem());
 
-        // ✅ Pistón por resonancia
         this.getChunkStoreRegistry().registerSystem(new org.example.plugin.piston.system.ResonancePistonEventSystem());
     }
 

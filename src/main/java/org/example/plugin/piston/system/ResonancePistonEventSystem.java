@@ -21,7 +21,7 @@ import org.example.plugin.resonance.event.ResonanceCreatedEvent;
 
 public class ResonancePistonEventSystem extends WorldEventSystem<ChunkStore, ResonanceCreatedEvent> {
 
-    // Probamos varias keys posibles (hasta encontrar la real)
+
     private static final String[] BASE_KEYS = new String[]{
             "Piston_Block",
             "Piston/Piston_Block",
@@ -34,7 +34,7 @@ public class ResonancePistonEventSystem extends WorldEventSystem<ChunkStore, Res
             "Items/Piston/Piston_Head"
     };
 
-    // Dirección fija por ahora: hacia -Z
+
     private static final Vector3i DIR = new Vector3i(0, 0, -1);
 
     private static final Query<ChunkStore> QUERY =
@@ -82,7 +82,7 @@ public class ResonancePistonEventSystem extends WorldEventSystem<ChunkStore, Res
                             int worldY = ChunkUtil.worldCoordFromLocalCoord(section.getY(), localY);
                             int worldZ = ChunkUtil.worldCoordFromLocalCoord(section.getZ(), localZ);
 
-                            // fuera del rango
+
                             if (new Vector3d(worldX, worldY, worldZ).distanceSquaredTo(origin) >= distSq) {
                                 return BlockTickStrategy.IGNORED;
                             }
@@ -93,19 +93,18 @@ public class ResonancePistonEventSystem extends WorldEventSystem<ChunkStore, Res
 
                             World world = worldChunk.getWorld();
 
-                            // TODO lo que toca mundo: dentro de execute()
+
                             world.execute(() -> {
                                 try {
                                     BlockType bt = world.getBlockType(worldX, worldY, worldZ);
                                     String id = getBlockId(bt);
                                     if (id == null) return;
 
-                                    // Solo pistones
+
                                     if (!id.contains("Piston_Block")) return;
 
                                     ExamplePlugin.LOGGER.atInfo().log("PISTON_HIT: " + id + " at " + worldX + "," + worldY + "," + worldZ);
 
-                                    // DEBUG: imprime ID del bloque pistón y el bloque enfrente
                                     logBlockAt(world, worldX, worldY, worldZ, "DEBUG_PISTON_SELF");
                                     logBlockAt(world,
                                             worldX + DIR.getX(),
@@ -118,7 +117,6 @@ public class ResonancePistonEventSystem extends WorldEventSystem<ChunkStore, Res
                                     int hy = worldY + DIR.getY();
                                     int hz = worldZ + DIR.getZ();
 
-                                    // Determinar si está extendido: si enfrente hay un head
                                     String frontId = getBlockId(world.getBlockType(hx, hy, hz));
                                     boolean isExtended = (frontId != null && frontId.contains("Piston_Head"));
 
@@ -146,14 +144,12 @@ public class ResonancePistonEventSystem extends WorldEventSystem<ChunkStore, Res
         int hy = y + DIR.getY();
         int hz = z + DIR.getZ();
 
-        // si hay algo delante, no extiende
         String frontId = getBlockId(world.getBlockType(hx, hy, hz));
         if (frontId != null && !isAirLike(frontId)) {
             ExamplePlugin.LOGGER.atInfo().log("PISTON_BLOCKED: frontId=" + frontId);
             return;
         }
 
-        // Colocar HEAD con fallback de keys
         String usedHeadKey = trySetBlockAnyKey(world, hx, hy, hz, HEAD_KEYS);
         if (usedHeadKey == null) {
             ExamplePlugin.LOGGER.atSevere().log(
@@ -164,7 +160,6 @@ public class ResonancePistonEventSystem extends WorldEventSystem<ChunkStore, Res
 
         ExamplePlugin.LOGGER.atInfo().log("PISTON_EXTEND OK headKey=" + usedHeadKey + " at " + hx + "," + hy + "," + hz);
 
-        // Animación Extend (si existe)
         try {
             BlockType headBt = world.getBlockType(hx, hy, hz);
             if (headBt != null) {
@@ -201,7 +196,6 @@ public class ResonancePistonEventSystem extends WorldEventSystem<ChunkStore, Res
         }
     }
 
-    // ------------------- DEBUG HELPERS -------------------
 
     private static void logBlockAt(World world, int x, int y, int z, String tag) {
         try {
@@ -214,9 +208,6 @@ public class ResonancePistonEventSystem extends WorldEventSystem<ChunkStore, Res
         }
     }
 
-    /**
-     * Intenta setBlock con múltiples keys. Devuelve la key que funcionó o null si ninguna.
-     */
     private static String trySetBlockAnyKey(World world, int x, int y, int z, String[] keys) {
         for (String key : keys) {
             try {
