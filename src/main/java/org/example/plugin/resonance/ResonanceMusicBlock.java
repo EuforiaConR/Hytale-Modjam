@@ -9,7 +9,9 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.math.vector.Vector3d;
+import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.protocol.SoundCategory;
+import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.asset.type.soundevent.config.SoundEvent;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
@@ -21,26 +23,35 @@ import org.example.plugin.ExamplePlugin;
 import org.example.plugin.resonance.event.ResonanceCreatedEvent;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class ResonanceMusicBlock implements Component<ChunkStore> {
 
-    // ✅ MISMO SONIDO QUE TU ExampleCommand (debug fijo)
-    private static final String DEBUG_SOUND_ID = "SFX_Cactus_Large_Hit";
+    // Sonido fijo (el que usaste en tu comando de debug)
+    private static final String SOUND_ID = "SFX_Cactus_Large_Hit";
 
     // ======== CONFIG (desde JSON via codec) ========
     private float volume = 1.0f;
 
     // pitch = basePitch + amountCreated * pitchPerAmount
     private float basePitch = 1.0f;
-    private float pitchPerAmount = 0.0f;
+    private float pitchPerAmount = 0.01f;
 
-    // Distancia a la que se escucha
+    // Distancia a la que se escucha (y a quién le llega el mensaje)
     private double hearRadius = 16.0;
 
     // Anti-spam en ms
     private long cooldownMs = 200;
 
-    // ======== RUNTIME (no serializado) ========
+    // rango para escanear bloques con ResonanceBlock alrededor
+    private double scanRange = ResonanceUtil.BLOCK_DETECTION_RANGE;
+
+    // límite de líneas para chat (tu API no tiene Codec.INT, usamos LONG)
+    private int maxLines = 20;
+
+    // ======== RUNTIME ========
     private transient long lastPlayedAtMs = 0L;
 
     // ======== CODEC ========
@@ -56,23 +67,30 @@ public class ResonanceMusicBlock implements Component<ChunkStore> {
                             ResonanceMusicBlock::setHearRadius, ResonanceMusicBlock::hearRadius).add()
                     .append(new KeyedCodec<>("CooldownMs", Codec.LONG),
                             ResonanceMusicBlock::setCooldownMs, ResonanceMusicBlock::cooldownMs).add()
+                    .append(new KeyedCodec<>("ScanRange", Codec.DOUBLE),
+                            ResonanceMusicBlock::setScanRange, ResonanceMusicBlock::scanRange).add()
+                    .append(new KeyedCodec<>("MaxLines", Codec.LONG),
+                            ResonanceMusicBlock::setMaxLinesLong, ResonanceMusicBlock::maxLinesLong).add()
                     .build();
 
     public static ComponentType<ChunkStore, ResonanceMusicBlock> getComponentType() {
         return ExamplePlugin.get().getMusicBlockComponentType();
     }
 
+    /**
+     * 1) suena
+     * 2) manda al chat la resonancia cercana (a jugadores cerca)
+     */
     public void onResonance(World world, int x, int y, int z, ResonanceCreatedEvent event) {
-        // ✅ Todo lo que toca mundo / store dentro de world.execute
         world.execute(() -> {
             try {
                 long now = System.currentTimeMillis();
                 if (cooldownMs > 0 && now - lastPlayedAtMs < cooldownMs) return;
                 lastPlayedAtMs = now;
 
-                int soundIndex = SoundEvent.getAssetMap().getIndex(DEBUG_SOUND_ID);
+                int soundIndex = SoundEvent.getAssetMap().getIndex(SOUND_ID);
                 if (soundIndex < 0) {
-                    ExamplePlugin.LOGGER.atSevere().log("ResonanceMusicBlock: no existe SoundEvent: " + DEBUG_SOUND_ID);
+                    ExamplePlugin.LOGGER.atSevere().log("ResonanceMusicBlock: SoundEvent no existe: " + SOUND_ID);
                     return;
                 }
 
@@ -85,21 +103,130 @@ public class ResonanceMusicBlock implements Component<ChunkStore> {
                 double sy = y + 0.5;
                 double sz = z + 0.5;
 
+                // 1) sonido
                 broadcast3dToNearbyPlayers(world, soundIndex, sx, sy, sz, vol, pitch, hearRadius);
 
-                // Log opcional para debug
-                ExamplePlugin.LOGGER.atInfo().log(
-                        "MUSIC_BLOCK: played " + DEBUG_SOUND_ID +
-                                " pitch=" + pitch + " vol=" + vol +
-                                " at " + x + "," + y + "," + z
-                );
+                // 2) mensaje con resonancia (1 línea por bloque, con nombre del bloque)
+                broadcastResonanceReport(world, new Vector3i(x, y, z), scanRange, hearRadius, maxLines);
 
             } catch (Throwable t) {
-                ExamplePlugin.LOGGER.atSevere().log("ResonanceMusicBlock: error en onResonance");
+                ExamplePlugin.LOGGER.atSevere().log("ResonanceMusicBlock: task crashed (onResonance)");
                 t.printStackTrace();
             }
         });
     }
+
+    // =================== CHAT: RESONANCIA ===================
+
+    private static final class Entry {
+        final String blockId;
+        final long r;
+
+        Entry(String blockId, long r) {
+            this.blockId = blockId;
+            this.r = r;
+        }
+    }
+
+    private static void broadcastResonanceReport(World world,
+                                                 Vector3i center,
+                                                 double scanRange,
+                                                 double playersRadius,
+                                                 int maxLines) {
+
+        List<Entry> entries = new ArrayList<>();
+
+        ResonanceUtil.forBlockInRange(world, center, scanRange,
+                (chunkBuffer, blockRef, _section, globalPos, _blockId) -> {
+
+                    ResonanceBlock rb = chunkBuffer.getComponent(blockRef, ResonanceBlock.getComponentType());
+                    if (rb == null) return;
+
+                    long r = rb.getResonance();
+                    if (r <= 0) return;
+
+                    // ID/nombre del bloque en esa posición
+                    String id;
+                    try {
+                        var bt = world.getBlockType(globalPos);
+                        id = (bt != null) ? bt.getId() : "unknown_block";
+                    } catch (Throwable t) {
+                        id = "unknown_block";
+                    }
+
+                    // ✅ 1 línea por bloque (sin agrupar)
+                    entries.add(new Entry(id, r));
+                });
+
+        // Ordenar por mayor resonancia
+        entries.sort(Comparator.comparingLong((Entry e) -> e.r).reversed());
+
+        // Construir mensaje
+        StringBuilder sb = new StringBuilder();
+        sb.append("[Resonance] Cerca de ")
+                .append(center.x).append(",").append(center.y).append(",").append(center.z)
+                .append(" (scan=").append(scanRange).append(")\n");
+
+        if (entries.isEmpty()) {
+            sb.append("(no hay resonancia en rango)");
+        } else {
+            int limit = Math.min(entries.size(), Math.max(1, maxLines));
+            for (int i = 0; i < limit; i++) {
+                Entry e = entries.get(i);
+                sb.append("• ")
+                        .append(e.blockId)
+                        .append(" -> ")
+                        .append(e.r)
+                        .append("\n");
+            }
+            if (entries.size() > limit) {
+                sb.append("... +").append(entries.size() - limit).append(" más");
+            }
+        }
+
+        Message msg = Message.raw(sb.toString());
+
+        // Enviar a jugadores cerca
+        EntityStore es = world.getEntityStore();
+        if (es == null) return;
+
+        Store<EntityStore> store = es.getStore();
+        if (store == null) return;
+
+        double cx = center.x + 0.5;
+        double cy = center.y + 0.5;
+        double cz = center.z + 0.5;
+        double r2 = playersRadius * playersRadius;
+
+        Query<EntityStore> q = Query.and(
+                PlayerRef.getComponentType(),
+                TransformComponent.getComponentType()
+        );
+
+        store.forEachChunk(q, (arch, buf) -> {
+            for (int i = 0; i < arch.size(); i++) {
+                Ref<EntityStore> ref = arch.getReferenceTo(i);
+                if (ref == null || !ref.isValid()) continue;
+
+                TransformComponent tc = buf.getComponent(ref, TransformComponent.getComponentType());
+                if (tc == null) continue;
+
+                Vector3d p = tc.getPosition();
+                double dx = p.getX() - cx;
+                double dy = p.getY() - cy;
+                double dz = p.getZ() - cz;
+
+                if ((dx * dx + dy * dy + dz * dz) > r2) continue;
+
+                PlayerRef pr = buf.getComponent(ref, PlayerRef.getComponentType());
+                if (pr == null || !pr.isValid()) continue;
+
+                pr.sendMessage(msg);
+            }
+        });
+    }
+
+    // =================== SONIDO ===================
 
     private static void broadcast3dToNearbyPlayers(World world,
                                                    int soundIndex,
@@ -135,7 +262,6 @@ public class ResonanceMusicBlock implements Component<ChunkStore> {
 
                 if ((dx * dx + dy * dy + dz * dz) > r2) continue;
 
-                // ✅ MISMA OVERLOAD QUE TU ExampleCommand
                 SoundUtil.playSoundEvent3dToPlayer(
                         ref,
                         soundIndex,
@@ -149,7 +275,7 @@ public class ResonanceMusicBlock implements Component<ChunkStore> {
         });
     }
 
-    // ======== getters/setters (codec) ========
+    // ======== getters/setters ========
     public float volume() { return volume; }
     public void setVolume(float volume) { this.volume = volume; }
 
@@ -165,6 +291,13 @@ public class ResonanceMusicBlock implements Component<ChunkStore> {
     public long cooldownMs() { return cooldownMs; }
     public void setCooldownMs(long cooldownMs) { this.cooldownMs = cooldownMs; }
 
+    public double scanRange() { return scanRange; }
+    public void setScanRange(double scanRange) { this.scanRange = scanRange; }
+
+    // Codec.LONG helper
+    public long maxLinesLong() { return maxLines; }
+    public void setMaxLinesLong(long v) { this.maxLines = (int) v; }
+
     private static float clamp(float v, float min, float max) {
         return Math.max(min, Math.min(max, v));
     }
@@ -178,6 +311,8 @@ public class ResonanceMusicBlock implements Component<ChunkStore> {
         b.pitchPerAmount = this.pitchPerAmount;
         b.hearRadius = this.hearRadius;
         b.cooldownMs = this.cooldownMs;
+        b.scanRange = this.scanRange;
+        b.maxLines = this.maxLines;
         return b;
     }
 }

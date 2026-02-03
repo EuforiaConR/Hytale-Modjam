@@ -17,6 +17,7 @@ import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.example.plugin.ExamplePlugin;
 import org.example.plugin.resonance.ResonanceBlock;
 import org.example.plugin.resonance.ResonanceDestroyerBlock;
+import org.example.plugin.resonance.ResonanceMusicBlock; // ✅ NUEVO
 import org.example.plugin.resonance.event.ResonanceCreatedEvent;
 
 public class ResonanceCreatedEventSystem extends WorldEventSystem<ChunkStore, ResonanceCreatedEvent> {
@@ -63,7 +64,6 @@ public class ResonanceCreatedEventSystem extends WorldEventSystem<ChunkStore, Re
 							int worldY = ChunkUtil.worldCoordFromLocalCoord(section.getY(), localY);
 							int worldZ = ChunkUtil.worldCoordFromLocalCoord(section.getZ(), localZ);
 
-							// Fuera de rango → ignorar
 							if (new Vector3d(worldX, worldY, worldZ).distanceSquaredTo(event.origin()) >= distSq) {
 								return BlockTickStrategy.IGNORED;
 							}
@@ -74,27 +74,31 @@ public class ResonanceCreatedEventSystem extends WorldEventSystem<ChunkStore, Re
 								return BlockTickStrategy.IGNORED;
 							}
 
-							// (Opcional) log de debug
-							// ExamplePlugin.LOGGER.atInfo().log("TICK: " + worldX + "," + worldY + "," + worldZ);
-
 							WorldChunk worldChunk =
 									commandBuffer.getComponent(section.getChunkColumnReference(), WorldChunk.getComponentType());
 							if (worldChunk == null) {
 								return BlockTickStrategy.IGNORED;
 							}
 
-							// ResonanceBlock: acumula/recibe resonancia
+							// ResonanceBlock
 							ResonanceBlock resonanceBlock =
 									chunkBuffer.getComponent(blockRef, ResonanceBlock.getComponentType());
 							if (resonanceBlock != null) {
 								resonanceBlock.onResonanceCreated(worldChunk.getWorld(), event);
 							}
 
-							// DestroyerBlock: reacciona a la resonancia (rompe bloques etc)
+							// DestroyerBlock
 							ResonanceDestroyerBlock destroyer =
 									chunkBuffer.getComponent(blockRef, ResonanceDestroyerBlock.getComponentType());
 							if (destroyer != null) {
 								destroyer.onResonance(worldChunk.getWorld(), worldX, worldY, worldZ, event);
+							}
+
+							// MusicBlock
+							ResonanceMusicBlock music =
+									chunkBuffer.getComponent(blockRef, ResonanceMusicBlock.getComponentType());
+							if (music != null) {
+								music.onResonance(worldChunk.getWorld(), worldX, worldY, worldZ, event);
 							}
 
 							return BlockTickStrategy.CONTINUE;

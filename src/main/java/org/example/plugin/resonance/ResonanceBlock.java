@@ -68,9 +68,15 @@ public class ResonanceBlock implements Component<ChunkStore>  {
 	}
 
 	public void onResonanceCreated(World world, ResonanceCreatedEvent event) {
-		setResonance(resonance + event.amountCreated());
-		ExamplePlugin.LOGGER.atInfo().log("Yummy free resonance!");
+		long oldResonance = this.resonance;
+		long newResonance = oldResonance + event.amountCreated();
+
+		setResonance(newResonance);
+
+		ExamplePlugin.LOGGER.atInfo().log("Old resonance: " + oldResonance);
+		ExamplePlugin.LOGGER.atInfo().log("New resonance: " + this.resonance);
 	}
+
 
 	@Nullable
 	public Component<ChunkStore> clone() {

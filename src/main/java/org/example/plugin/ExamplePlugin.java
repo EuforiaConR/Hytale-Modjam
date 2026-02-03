@@ -53,11 +53,11 @@ public class ExamplePlugin extends JavaPlugin {
         this.resonanceStorageComponentType = getChunkStoreRegistry().registerComponent(ResonanceBlock.class, "ResonanceBlock", ResonanceBlock.CODEC);
 
         this.musicBlockComponentType =
-            getChunkStoreRegistry().registerComponent(
-                    ResonanceMusicBlock.class,
-                    "ResonanceMusicBlock",
-                    BuilderCodec.builder(ResonanceMusicBlock.class, ResonanceMusicBlock::new).build()
-            );
+                getChunkStoreRegistry().registerComponent(
+                        ResonanceMusicBlock.class,
+                        "ResonanceMusicBlock",
+                        ResonanceMusicBlock.CODEC
+                );
 
         this.destroyerComponentType =
                 getChunkStoreRegistry().registerComponent(
@@ -76,7 +76,6 @@ public class ExamplePlugin extends JavaPlugin {
         this.getChunkStoreRegistry().registerEntityEventType(ResonanceCreatedEvent.class);
         this.getChunkStoreRegistry().registerSystem(new ResonanceCreatedEventSystem());
 
-        // ✅ Pistón por resonancia
         this.getChunkStoreRegistry().registerSystem(new org.example.plugin.piston.system.ResonancePistonEventSystem());
     }
 

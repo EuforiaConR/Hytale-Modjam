@@ -34,9 +34,15 @@
           "BasePitch": 1.0,
           "PitchPerAmount": 0.01,
           "HearRadius": 16.0,
-          "CooldownMs": 200
+          "CooldownMs": 200,
+          "ScanRange": 16.0,
+          "MaxLines": 20
         },
-        "ResonanceBlock": { "Resonance": 0 }
+
+
+        "ResonanceBlock": {
+          "Resonance": 0
+        }
       }
     }
   },
