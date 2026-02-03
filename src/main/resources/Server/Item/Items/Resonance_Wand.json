@@ -24,7 +24,11 @@
           },
           "EmissionAmount": 0
         }
-      ]
+      ],
+      "Cooldown": {
+        "Id": "Resonance_Wand",
+        "Cooldown": 0.75
+      }
     }
   },
   "Model": "Resources/Resonance_Wand/resonance_wand.blockymodel",
