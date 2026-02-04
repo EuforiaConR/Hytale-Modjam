@@ -33,13 +33,29 @@
     "BlockEntity": {
       "Components": {
         "ResonanceBlock": {
-          "Resonance": 0
+          "Resonance": 0,
+          "GeneratePerTick": 0,
+          "GenerateForTicks": 0,
+          "GenerationCycles": 0,
+          "EmissionType": "Never"
         }
       }
     },
     "VariantRotation": "UpDownNESW",
     "FlipType": "Symmetric",
-    "RotationYawPlacementOffset": "None"
+    "RotationYawPlacementOffset": "None",
+    "RandomRotation": "None",
+    "State": {
+      "Definitions": {
+        "Extend": {
+          "CustomModelAnimation": "Blocks/Resonance/extend.blockyanim"
+        },
+        "Retract": {
+          "CustomModelScale": 1,
+          "CustomModelAnimation": "Blocks/Resonance/shrink.blockyanim"
+        }
+      }
+    }
   },
   "ResourceTypes": [
     {

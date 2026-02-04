@@ -9,6 +9,7 @@ import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.asset.type.blocktick.BlockTickStrategy;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
+import com.hypixel.hytale.server.core.command.commands.world.chunk.ChunkInfoCommand;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
@@ -18,6 +19,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.example.plugin.ExamplePlugin;
 import org.example.plugin.resonance.event.ResonanceCreatedEvent;
+import org.example.plugin.util.BlockStateUtil;
 
 public class ResonancePistonEventSystem extends WorldEventSystem<ChunkStore, ResonanceCreatedEvent> {
 
@@ -101,7 +103,7 @@ public class ResonancePistonEventSystem extends WorldEventSystem<ChunkStore, Res
                                     if (id == null) return;
 
 
-                                    if (!id.contains("Piston_Block")) return;
+                                    if (!id.contains("Piston")) return;
 
                                     ExamplePlugin.LOGGER.atInfo().log("PISTON_HIT: " + id + " at " + worldX + "," + worldY + "," + worldZ);
 
@@ -118,7 +120,9 @@ public class ResonancePistonEventSystem extends WorldEventSystem<ChunkStore, Res
                                     int hz = worldZ + DIR.getZ();
 
                                     String frontId = getBlockId(world.getBlockType(hx, hy, hz));
-                                    boolean isExtended = (frontId != null && frontId.contains("Piston_Head"));
+                                    BlockType type = world.getBlockType(worldX, worldY, worldZ);
+                                    String stateId = BlockStateUtil.getStateIdFromDefinition(type);
+                                    boolean isExtended = "Extend".equals(stateId);
 
                                     if (!isExtended) {
                                         extend(world, worldX, worldY, worldZ);
@@ -150,25 +154,30 @@ public class ResonancePistonEventSystem extends WorldEventSystem<ChunkStore, Res
             return;
         }
 
-        String usedHeadKey = trySetBlockAnyKey(world, hx, hy, hz, HEAD_KEYS);
-        if (usedHeadKey == null) {
-            ExamplePlugin.LOGGER.atSevere().log(
-                    "PISTON_EXTEND FAIL: no existe ninguna key para HEAD. Probadas: " + String.join(", ", HEAD_KEYS)
-            );
-            return;
-        }
 
-        ExamplePlugin.LOGGER.atInfo().log("PISTON_EXTEND OK headKey=" + usedHeadKey + " at " + hx + "," + hy + "," + hz);
-
-        try {
-            BlockType headBt = world.getBlockType(hx, hy, hz);
-            if (headBt != null) {
-                world.setBlockInteractionState(new Vector3i(hx, hy, hz), headBt, "Extend");
-            }
-        } catch (Throwable t) {
-            ExamplePlugin.LOGGER.atSevere().log("PISTON_HEAD_ANIM Extend failed");
-            t.printStackTrace();
-        }
+        int localX = ChunkUtil.localCoordinate(x);
+        int localZ = ChunkUtil.localCoordinate(z);
+        world.setBlockInteractionState(new Vector3i(x, y, z), world.getBlockType(x, y, z), "Extend");
+        world.getChunk(ChunkUtil.indexChunkFromBlock(x, z)).setTicking(localX, y, localZ, true);
+//        String usedHeadKey = trySetBlockAnyKey(world, hx, hy, hz, HEAD_KEYS);
+//        if (usedHeadKey == null) {
+//            ExamplePlugin.LOGGER.atSevere().log(
+//                    "PISTON_EXTEND FAIL: no existe ninguna key para HEAD. Probadas: " + String.join(", ", HEAD_KEYS)
+//            );
+//            return;
+//        }
+//
+//        ExamplePlugin.LOGGER.atInfo().log("PISTON_EXTEND OK headKey=" + usedHeadKey + " at " + hx + "," + hy + "," + hz);
+//
+//        try {
+//            BlockType headBt = world.getBlockType(hx, hy, hz);
+//            if (headBt != null) {
+//                world.setBlockInteractionState(new Vector3i(hx, hy, hz), headBt, "Extend");
+//            }
+//        } catch (Throwable t) {
+//            ExamplePlugin.LOGGER.atSevere().log("PISTON_HEAD_ANIM Extend failed");
+//            t.printStackTrace();
+//        }
     }
 
     private void retract(World world, int x, int y, int z) {
@@ -176,24 +185,30 @@ public class ResonancePistonEventSystem extends WorldEventSystem<ChunkStore, Res
         int hy = y + DIR.getY();
         int hz = z + DIR.getZ();
 
+        int localX = ChunkUtil.localCoordinate(x);
+        int localZ = ChunkUtil.localCoordinate(z);
         ExamplePlugin.LOGGER.atInfo().log("PISTON_RETRACT at " + x + "," + y + "," + z);
-
-        try {
-            BlockType headBt = world.getBlockType(hx, hy, hz);
-            if (headBt != null) {
-                world.setBlockInteractionState(new Vector3i(hx, hy, hz), headBt, "Retract");
-            }
-        } catch (Throwable t) {
-            ExamplePlugin.LOGGER.atSevere().log("PISTON_HEAD_ANIM Retract failed");
-            t.printStackTrace();
-        }
-
-        try {
-            world.breakBlock(hx, hy, hz, 0);
-        } catch (Throwable t) {
-            ExamplePlugin.LOGGER.atSevere().log("PISTON_BREAK_HEAD failed at " + hx + "," + hy + "," + hz);
-            t.printStackTrace();
-        }
+        world.setBlockInteractionState(new Vector3i(x, y, z), world.getBlockType(x, y, z), "Retract");
+        // setting the state resets the ticking functionality
+        world.getChunk(ChunkUtil.indexChunkFromBlock(x, z)).setTicking(localX, y, localZ, true);
+        return;
+//
+//        try {
+//            BlockType headBt = world.getBlockType(hx, hy, hz);
+//            if (headBt != null) {
+//                world.setBlockInteractionState(new Vector3i(hx, hy, hz), headBt, "Retract");
+//            }
+//        } catch (Throwable t) {
+//            ExamplePlugin.LOGGER.atSevere().log("PISTON_HEAD_ANIM Retract failed");
+//            t.printStackTrace();
+//        }
+//
+//        try {
+//            world.breakBlock(hx, hy, hz, 0);
+//        } catch (Throwable t) {
+//            ExamplePlugin.LOGGER.atSevere().log("PISTON_BREAK_HEAD failed at " + hx + "," + hy + "," + hz);
+//            t.printStackTrace();
+//        }
     }
 
 
