@@ -48,7 +48,9 @@
     "State": {
       "Definitions": {
         "Extend": {
-          "CustomModelAnimation": "Blocks/Resonance/extend.blockyanim"
+          "CustomModelAnimation": "Blocks/Resonance/extend.blockyanim",
+          "HitboxType": "Piston_Extended",
+          "AllowsMultipleUsers": false
         },
         "Retract": {
           "CustomModelScale": 1,

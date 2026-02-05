@@ -7,9 +7,10 @@ import com.hypixel.hytale.component.system.WorldEventSystem;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3i;
+import com.hypixel.hytale.protocol.BlockMaterial;
 import com.hypixel.hytale.server.core.asset.type.blocktick.BlockTickStrategy;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
-import com.hypixel.hytale.server.core.command.commands.world.chunk.ChunkInfoCommand;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
@@ -18,6 +19,7 @@ import com.hypixel.hytale.server.core.universe.world.chunk.section.ChunkSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.example.plugin.ExamplePlugin;
+import org.example.plugin.piston.ExtendResult;
 import org.example.plugin.resonance.event.ResonanceCreatedEvent;
 import org.example.plugin.util.BlockStateUtil;
 
@@ -35,9 +37,6 @@ public class ResonancePistonEventSystem extends WorldEventSystem<ChunkStore, Res
             "Piston/Piston_Head",
             "Items/Piston/Piston_Head"
     };
-
-
-    private static final Vector3i DIR = new Vector3i(0, 0, -1);
 
     private static final Query<ChunkStore> QUERY =
             Query.and(BlockSection.getComponentType(), ChunkSection.getComponentType());
@@ -105,21 +104,6 @@ public class ResonancePistonEventSystem extends WorldEventSystem<ChunkStore, Res
 
                                     if (!id.contains("Piston")) return;
 
-                                    ExamplePlugin.LOGGER.atInfo().log("PISTON_HIT: " + id + " at " + worldX + "," + worldY + "," + worldZ);
-
-                                    logBlockAt(world, worldX, worldY, worldZ, "DEBUG_PISTON_SELF");
-                                    logBlockAt(world,
-                                            worldX + DIR.getX(),
-                                            worldY + DIR.getY(),
-                                            worldZ + DIR.getZ(),
-                                            "DEBUG_IN_FRONT"
-                                    );
-
-                                    int hx = worldX + DIR.getX();
-                                    int hy = worldY + DIR.getY();
-                                    int hz = worldZ + DIR.getZ();
-
-                                    String frontId = getBlockId(world.getBlockType(hx, hy, hz));
                                     BlockType type = world.getBlockType(worldX, worldY, worldZ);
                                     String stateId = BlockStateUtil.getStateIdFromDefinition(type);
                                     boolean isExtended = "Extend".equals(stateId);
@@ -144,54 +128,75 @@ public class ResonancePistonEventSystem extends WorldEventSystem<ChunkStore, Res
     }
 
     private void extend(World world, int x, int y, int z) {
-        int hx = x + DIR.getX();
-        int hy = y + DIR.getY();
-        int hz = z + DIR.getZ();
+        Vector3i targetPos = getPistonTarget(world, x, y, z, 1);
+        Vector3i blockedByPos = getPistonTarget(world, x, y, z, 2);
 
-        String frontId = getBlockId(world.getBlockType(hx, hy, hz));
-        if (frontId != null && !isAirLike(frontId)) {
-            ExamplePlugin.LOGGER.atInfo().log("PISTON_BLOCKED: frontId=" + frontId);
+        BlockType targetType = world.getBlockType(targetPos.x, targetPos.y, targetPos.z);
+
+        ExtendResult result;
+        if (targetType == null || targetType == BlockType.EMPTY) {
+            // No issues here, the piston target spot is free.
+            result = ExtendResult.Empty;
+        }
+        else if(targetType.getMaterial() == BlockMaterial.Empty) {
+            result = ExtendResult.BreakTarget;
+        } else {
+            // Check the blocked pos to see if we can push the block;
+            BlockType blockedType = world.getBlockType(blockedByPos.x, blockedByPos.y, blockedByPos.z);
+            if (blockedType == null || blockedType == BlockType.EMPTY) {
+                result = ExtendResult.PushTarget;
+            }
+            else if (blockedType.getMaterial() == BlockMaterial.Empty) {
+                result = ExtendResult.BreakBlocked;
+            }
+            else {
+                result = ExtendResult.PistonBlocked;
+            }
+        }
+
+        if (result == ExtendResult.PistonBlocked) {
             return;
         }
 
+        // We should actually break the target in front of the piston (because it does not make sense to move it).
+        if (result == ExtendResult.BreakTarget) {
+            // TODO: Find out correct settings for breaking a block...
+            world.breakBlock(targetPos.x, targetPos.y, targetPos.z, 0);
+        }
 
+        boolean push = result == ExtendResult.PushTarget || result == ExtendResult.BreakBlocked;
+
+        // For now, we do not want to push complex blocks that have a component state (tile entities).
+        if (world.getBlockComponentHolder(targetPos.x, targetPos.y, targetPos.z) != null) {
+            return;
+        }
+
+        if (push) {
+            world.breakBlock(targetPos.x, targetPos.y, targetPos.z, 0);
+        }
+
+        // Move piston visually and update hitbox.
         int localX = ChunkUtil.localCoordinate(x);
         int localZ = ChunkUtil.localCoordinate(z);
         world.setBlockInteractionState(new Vector3i(x, y, z), world.getBlockType(x, y, z), "Extend");
         world.getChunk(ChunkUtil.indexChunkFromBlock(x, z)).setTicking(localX, y, localZ, true);
-//        String usedHeadKey = trySetBlockAnyKey(world, hx, hy, hz, HEAD_KEYS);
-//        if (usedHeadKey == null) {
-//            ExamplePlugin.LOGGER.atSevere().log(
-//                    "PISTON_EXTEND FAIL: no existe ninguna key para HEAD. Probadas: " + String.join(", ", HEAD_KEYS)
-//            );
-//            return;
-//        }
-//
-//        ExamplePlugin.LOGGER.atInfo().log("PISTON_EXTEND OK headKey=" + usedHeadKey + " at " + hx + "," + hy + "," + hz);
-//
-//        try {
-//            BlockType headBt = world.getBlockType(hx, hy, hz);
-//            if (headBt != null) {
-//                world.setBlockInteractionState(new Vector3i(hx, hy, hz), headBt, "Extend");
-//            }
-//        } catch (Throwable t) {
-//            ExamplePlugin.LOGGER.atSevere().log("PISTON_HEAD_ANIM Extend failed");
-//            t.printStackTrace();
-//        }
+
+        if (result == ExtendResult.BreakBlocked) {
+            world.breakBlock(blockedByPos.x, blockedByPos.y, blockedByPos.z, 0);
+        }
+
+        if (push) {
+            world.setBlock(blockedByPos.x, blockedByPos.y, blockedByPos.z, targetType.getId());
+        }
     }
 
     private void retract(World world, int x, int y, int z) {
-        int hx = x + DIR.getX();
-        int hy = y + DIR.getY();
-        int hz = z + DIR.getZ();
-
         int localX = ChunkUtil.localCoordinate(x);
         int localZ = ChunkUtil.localCoordinate(z);
         ExamplePlugin.LOGGER.atInfo().log("PISTON_RETRACT at " + x + "," + y + "," + z);
         world.setBlockInteractionState(new Vector3i(x, y, z), world.getBlockType(x, y, z), "Retract");
         // setting the state resets the ticking functionality
         world.getChunk(ChunkUtil.indexChunkFromBlock(x, z)).setTicking(localX, y, localZ, true);
-        return;
 //
 //        try {
 //            BlockType headBt = world.getBlockType(hx, hy, hz);
@@ -211,6 +216,12 @@ public class ResonancePistonEventSystem extends WorldEventSystem<ChunkStore, Res
 //        }
     }
 
+    private static Vector3i getPistonTarget(World world, int x, int y, int z, int amountOfBlocksInFront) {
+        // Get rotation of the piston block
+        RotationTuple rotation = RotationTuple.get(world.getBlockRotationIndex(x, y, z));
+        // Get the target position that the piston is pushing towards by rotating a unit vector with the piston's rotation.
+		return new Vector3i(x, y, z).add(rotation.rotate(Vector3d.BACKWARD.clone().scale(amountOfBlocksInFront)).toVector3i());
+    }
 
     private static void logBlockAt(World world, int x, int y, int z, String tag) {
         try {
@@ -241,20 +252,7 @@ public class ResonancePistonEventSystem extends WorldEventSystem<ChunkStore, Res
     }
 
     private static String getBlockId(BlockType blockType) {
-        if (blockType == null) return null;
-        try {
-            try {
-                return (String) blockType.getClass().getMethod("getId").invoke(blockType);
-            } catch (Exception ignored) {
-                try {
-                    return (String) blockType.getClass().getMethod("getName").invoke(blockType);
-                } catch (Exception ignored2) {
-                    return blockType.toString();
-                }
-            }
-        } catch (Exception e) {
-            return null;
-        }
+        return blockType.getId();
     }
 
     public Query<ChunkStore> getQuery() {
