@@ -191,29 +191,23 @@ public class ResonancePistonEventSystem extends WorldEventSystem<ChunkStore, Res
     }
 
     private void retract(World world, int x, int y, int z) {
+        Vector3i targetPos = getPistonTarget(world, x, y, z, 2);
+        BlockType targetType = world.getBlockType(targetPos.x, targetPos.y, targetPos.z);
+
+        Vector3i newPos = getPistonTarget(world, x, y, z, 1);
+
+        world.breakBlock(targetPos.x, targetPos.y, targetPos.z, 0);
+
         int localX = ChunkUtil.localCoordinate(x);
         int localZ = ChunkUtil.localCoordinate(z);
-        ExamplePlugin.LOGGER.atInfo().log("PISTON_RETRACT at " + x + "," + y + "," + z);
         world.setBlockInteractionState(new Vector3i(x, y, z), world.getBlockType(x, y, z), "Retract");
         // setting the state resets the ticking functionality
         world.getChunk(ChunkUtil.indexChunkFromBlock(x, z)).setTicking(localX, y, localZ, true);
-//
-//        try {
-//            BlockType headBt = world.getBlockType(hx, hy, hz);
-//            if (headBt != null) {
-//                world.setBlockInteractionState(new Vector3i(hx, hy, hz), headBt, "Retract");
-//            }
-//        } catch (Throwable t) {
-//            ExamplePlugin.LOGGER.atSevere().log("PISTON_HEAD_ANIM Retract failed");
-//            t.printStackTrace();
-//        }
-//
-//        try {
-//            world.breakBlock(hx, hy, hz, 0);
-//        } catch (Throwable t) {
-//            ExamplePlugin.LOGGER.atSevere().log("PISTON_BREAK_HEAD failed at " + hx + "," + hy + "," + hz);
-//            t.printStackTrace();
-//        }
+
+        if (targetType != null && targetType != BlockType.EMPTY
+        && targetType.getMaterial() != BlockMaterial.Empty) {
+            world.setBlock(newPos.x, newPos.y, newPos.z, targetType.getId());
+        }
     }
 
     private static Vector3i getPistonTarget(World world, int x, int y, int z, int amountOfBlocksInFront) {
